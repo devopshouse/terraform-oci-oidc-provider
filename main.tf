@@ -33,7 +33,7 @@ locals {
   github_repo_names = [for repo in var.github.repositories : split("/", repo)[1]]
 
   # JSON do secret OCI_CONFIG_JSON — reutilizado no output e no github_actions_secret.
-  oci_integration_config_json = jsonencode({
+  oci_config_json = jsonencode({
     oci_idcs_endpoint  = local.idcs_endpoint
     oci_client_id      = oci_identity_domains_app.git_actions_app.name
     oci_client_secret  = oci_identity_domains_app.git_actions_app.client_secret
@@ -250,7 +250,7 @@ resource "github_actions_secret" "oci_config_json" {
 
   repository  = each.key
   secret_name = "OCI_CONFIG_JSON"
-  value       = local.oci_integration_config_json
+  value       = local.oci_config_json
 }
 
 resource "github_actions_secret" "vault_cert_config" {
