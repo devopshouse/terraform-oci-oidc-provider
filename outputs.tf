@@ -5,7 +5,7 @@ output "oci_integration_config_json" {
 }
 
 output "iam_group_ocid" {
-  description = "OCID do grupo Identity Domains para GitHub Actions — usar como --group-id em scripts/setup-tenancy-b-dns-policy.sh (política Admit na tenancy remota DNS)."
+  description = "OCID do grupo Identity Domains para GitHub Actions."
   value       = oci_identity_domains_group.git_actions_group.id
 }
 
