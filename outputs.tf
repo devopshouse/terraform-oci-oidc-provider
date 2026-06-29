@@ -24,3 +24,8 @@ output "gitlab_subject_claims" {
   description = "Sub claims registrados no trust GitLab CI (vazio quando \"gitlab\" ∉ ci_platforms)."
   value       = local.gitlab_sub_claims
 }
+
+output "gitlab_oidc_audience" {
+  description = "Audience to set in .gitlab-ci.yml: id_tokens.OCI_OIDC_TOKEN.aud (null when \"gitlab\" ∉ ci_platforms)."
+  value       = local.gitlab_audience
+}

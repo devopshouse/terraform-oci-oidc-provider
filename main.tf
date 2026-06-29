@@ -21,6 +21,8 @@ locals {
     "project_path:${project}:ref_type:${var.gitlab.ref_type}:ref:${var.gitlab.ref}"
   ]
 
+  gitlab_audience = var.gitlab == null ? null : var.gitlab.audience
+
   # The provider may return the domain URL with an explicit :443 suffix while
   # older state values were stored without it. These resources treat
   # idcs_endpoint as ForceNew, so normalize the endpoint to avoid false
@@ -208,7 +210,7 @@ resource "oci_identity_domains_identity_propagation_trust" "gitlab_ci_trust" {
   idcs_endpoint = local.idcs_endpoint
   issuer        = var.gitlab.issuer
   name          = var.suffix != "" ? "GitLab-CI-Trust-${var.suffix}" : "GitLab-CI-Trust"
-  description   = "Identity propagation trust for GitLab CI OIDC."
+  description   = "Identity propagation trust for GitLab CI OIDC. Expected aud in id_tokens: ${local.gitlab_audience}"
   type          = "JWT"
   schemas       = ["urn:ietf:params:scim:schemas:oracle:idcs:IdentityPropagationTrust"]
 
