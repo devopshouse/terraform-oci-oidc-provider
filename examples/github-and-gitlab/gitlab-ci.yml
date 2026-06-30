@@ -1,7 +1,6 @@
 # Place this file at .gitlab-ci.yml in your GitLab repository.
-# Requires two CI/CD variables (Settings → CI/CD → Variables, both masked):
-#   OCI_CONFIG_JSON  — from: terraform output -raw oci_config_json
-#   OCIR_CONFIG_JSON — from: terraform output -raw ocir_config_json
+# Requires one masked CI/CD variable (Settings → CI/CD → Variables):
+#   OCI_OIDC_CONFIG — from: terraform output -raw ci_oidc_config_json
 
 stages:
   - deploy
@@ -17,9 +16,9 @@ oci-auth-example:
 
   script:
     - |
-      IDCS_ENDPOINT=$(echo "$OCI_CONFIG_JSON" | jq -r '.oci_idcs_endpoint')
-      CLIENT_ID=$(echo "$OCI_CONFIG_JSON"     | jq -r '.oci_client_id')
-      CLIENT_SECRET=$(echo "$OCI_CONFIG_JSON" | jq -r '.oci_client_secret')
+      IDCS_ENDPOINT=$(echo "$OCI_OIDC_CONFIG" | jq -r '.oci_idcs_endpoint')
+      CLIENT_ID=$(echo "$OCI_OIDC_CONFIG"     | jq -r '.oci_client_id')
+      CLIENT_SECRET=$(echo "$OCI_OIDC_CONFIG" | jq -r '.oci_client_secret')
 
       UPST=$(curl -sSf -X POST "${IDCS_ENDPOINT}/oauth2/v1/token" \
         -u "${CLIENT_ID}:${CLIENT_SECRET}" \
@@ -32,9 +31,9 @@ oci-auth-example:
       export OCI_UPST="${UPST}"
 
     - |
-      OCIR_URL=$(echo "$OCIR_CONFIG_JSON"      | jq -r '.ocir_url')
-      OCIR_USER=$(echo "$OCIR_CONFIG_JSON"     | jq -r '.ocir_username')
-      OCIR_PASSWORD=$(echo "$OCIR_CONFIG_JSON" | jq -r '.ocir_password')
+      OCIR_URL=$(echo "$OCI_OIDC_CONFIG"      | jq -r '.ocir_url')
+      OCIR_USER=$(echo "$OCI_OIDC_CONFIG"     | jq -r '.ocir_username')
+      OCIR_PASSWORD=$(echo "$OCI_OIDC_CONFIG" | jq -r '.ocir_password')
       echo "$OCIR_PASSWORD" | docker login "${OCIR_URL}" -u "${OCIR_USER}" --password-stdin
 
   only:

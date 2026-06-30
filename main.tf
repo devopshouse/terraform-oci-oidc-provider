@@ -4,7 +4,6 @@ data "oci_identity_domains" "domain" {
 }
 
 data "oci_objectstorage_namespace" "os" {
-  count          = var.create_ocir_user ? 1 : 0
   compartment_id = var.oci_tenancy_id
 }
 
@@ -29,7 +28,6 @@ resource "oci_identity_domains_user" "git_service_user" {
 # Separate non-service user required for OCIR auth token.
 # Service users do not support auth tokens in OCI Identity Domains.
 resource "oci_identity_domains_user" "ocir_user" {
-  count         = var.create_ocir_user ? 1 : 0
   idcs_endpoint = local.idcs_endpoint
   schemas       = ["urn:ietf:params:scim:schemas:core:2.0:User"]
   user_name     = "${var.oci_service_user_name}-ocir"
@@ -53,13 +51,12 @@ resource "oci_identity_domains_user" "ocir_user" {
 }
 
 resource "oci_identity_domains_auth_token" "ocir_token" {
-  count         = var.create_ocir_user ? 1 : 0
   idcs_endpoint = local.idcs_endpoint
   description   = "OCIR auth token"
   schemas       = ["urn:ietf:params:scim:schemas:oracle:idcs:authToken"]
 
   user {
-    value = oci_identity_domains_user.ocir_user[0].id
+    value = oci_identity_domains_user.ocir_user.id
   }
 }
 
@@ -73,12 +70,19 @@ resource "oci_identity_domains_group" "git_actions_group" {
     value = oci_identity_domains_user.git_service_user.id
   }
 
-  dynamic "members" {
-    for_each = var.create_ocir_user ? [1] : []
-    content {
-      type  = "User"
-      value = oci_identity_domains_user.ocir_user[0].id
-    }
+  lifecycle {
+    ignore_changes = [schemas, members]
+  }
+}
+
+resource "oci_identity_domains_group" "ocir_group" {
+  idcs_endpoint = local.idcs_endpoint
+  schemas       = ["urn:ietf:params:scim:schemas:core:2.0:Group"]
+  display_name  = local.ocir_group_name
+
+  members {
+    type  = "User"
+    value = oci_identity_domains_user.ocir_user.id
   }
 
   lifecycle {
@@ -162,6 +166,14 @@ resource "oci_identity_policy" "git_actions_policy" {
     "allow group ${var.oci_identity_domain_name}/${oci_identity_domains_group.git_actions_group.display_name} to manage all-resources in compartment id ${var.oci_compartment_id}",
     "allow group ${var.oci_identity_domain_name}/${oci_identity_domains_group.git_actions_group.display_name} to manage dynamic-groups in tenancy"
   ]
+}
+
+resource "oci_identity_policy" "ocir_policy" {
+  compartment_id = var.oci_tenancy_id
+  name           = "${var.iam_policy_name}-ocir"
+  description    = "Allows ${oci_identity_domains_group.ocir_group.display_name} to push and pull images in OCIR."
+
+  statements = local.ocir_policy_statements
 }
 
 # ---------------------------------------------------------------------------

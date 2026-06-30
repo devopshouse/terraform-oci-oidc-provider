@@ -21,11 +21,11 @@ jobs:
       - name: Get OCI UPST
         id: oci_auth
         env:
-          OCI_CONFIG_JSON: ${{ secrets.OCI_CONFIG_JSON }}
+          OCI_OIDC_CONFIG: ${{ secrets.OCI_OIDC_CONFIG }}
         run: |
-          IDCS_ENDPOINT=$(echo "$OCI_CONFIG_JSON" | jq -r '.oci_idcs_endpoint')
-          CLIENT_ID=$(echo "$OCI_CONFIG_JSON"     | jq -r '.oci_client_id')
-          CLIENT_SECRET=$(echo "$OCI_CONFIG_JSON" | jq -r '.oci_client_secret')
+          IDCS_ENDPOINT=$(echo "$OCI_OIDC_CONFIG" | jq -r '.oci_idcs_endpoint')
+          CLIENT_ID=$(echo "$OCI_OIDC_CONFIG"     | jq -r '.oci_client_id')
+          CLIENT_SECRET=$(echo "$OCI_OIDC_CONFIG" | jq -r '.oci_client_secret')
 
           GITHUB_JWT=$(curl -sSfL \
             -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
@@ -45,9 +45,9 @@ jobs:
 
       - name: Log in to OCIR
         env:
-          OCIR_CONFIG_JSON: ${{ secrets.OCIR_CONFIG_JSON }}
+          OCI_OIDC_CONFIG: ${{ secrets.OCI_OIDC_CONFIG }}
         run: |
-          OCIR_URL=$(echo "$OCIR_CONFIG_JSON"      | jq -r '.ocir_url')
-          OCIR_USER=$(echo "$OCIR_CONFIG_JSON"     | jq -r '.ocir_username')
-          OCIR_PASSWORD=$(echo "$OCIR_CONFIG_JSON" | jq -r '.ocir_password')
+          OCIR_URL=$(echo "$OCI_OIDC_CONFIG"      | jq -r '.ocir_url')
+          OCIR_USER=$(echo "$OCI_OIDC_CONFIG"     | jq -r '.ocir_username')
+          OCIR_PASSWORD=$(echo "$OCI_OIDC_CONFIG" | jq -r '.ocir_password')
           echo "$OCIR_PASSWORD" | docker login "${OCIR_URL}" -u "${OCIR_USER}" --password-stdin

@@ -33,6 +33,10 @@ module "oci_oidc" {
   oci_service_user_name  = "svc-ci"
   git_actions_group_name = "grp-ci-actions"
 
+  # Empty default allows broad OCIR push/pull and repository creation.
+  # Restrict to existing repositories with:
+  # ocir_allowed_repositories = ["app-api"]
+
   ci_platforms = ["gitlab"]
   gitlab = {
     issuer   = "https://gitlab.com"

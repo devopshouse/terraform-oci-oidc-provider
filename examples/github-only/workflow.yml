@@ -25,11 +25,11 @@ jobs:
       - name: Get OCI UPST
         id: oci_auth
         env:
-          OCI_CONFIG_JSON: ${{ secrets.OCI_CONFIG_JSON }}
+          OCI_OIDC_CONFIG: ${{ secrets.OCI_OIDC_CONFIG }}
         run: |
-          IDCS_ENDPOINT=$(echo "$OCI_CONFIG_JSON" | jq -r '.oci_idcs_endpoint')
-          CLIENT_ID=$(echo "$OCI_CONFIG_JSON"     | jq -r '.oci_client_id')
-          CLIENT_SECRET=$(echo "$OCI_CONFIG_JSON" | jq -r '.oci_client_secret')
+          IDCS_ENDPOINT=$(echo "$OCI_OIDC_CONFIG" | jq -r '.oci_idcs_endpoint')
+          CLIENT_ID=$(echo "$OCI_OIDC_CONFIG"     | jq -r '.oci_client_id')
+          CLIENT_SECRET=$(echo "$OCI_OIDC_CONFIG" | jq -r '.oci_client_secret')
 
           # Request the GitHub OIDC JWT with the OCI audience.
           GITHUB_JWT=$(curl -sSfL \
@@ -52,11 +52,11 @@ jobs:
       # Step 2: Authenticate with OCIR for Docker operations.
       - name: Log in to OCIR
         env:
-          OCIR_CONFIG_JSON: ${{ secrets.OCIR_CONFIG_JSON }}
+          OCI_OIDC_CONFIG: ${{ secrets.OCI_OIDC_CONFIG }}
         run: |
-          OCIR_URL=$(echo "$OCIR_CONFIG_JSON"      | jq -r '.ocir_url')
-          OCIR_USER=$(echo "$OCIR_CONFIG_JSON"     | jq -r '.ocir_username')
-          OCIR_PASSWORD=$(echo "$OCIR_CONFIG_JSON" | jq -r '.ocir_password')
+          OCIR_URL=$(echo "$OCI_OIDC_CONFIG"      | jq -r '.ocir_url')
+          OCIR_USER=$(echo "$OCI_OIDC_CONFIG"     | jq -r '.ocir_username')
+          OCIR_PASSWORD=$(echo "$OCI_OIDC_CONFIG" | jq -r '.ocir_password')
           echo "$OCIR_PASSWORD" | docker login "${OCIR_URL}" -u "${OCIR_USER}" --password-stdin
 
       # Step 3: Use the UPST with OCI CLI or an OCI SDK.
@@ -64,10 +64,10 @@ jobs:
       # or pass it directly to SDK calls via the security_token_file config.
       - name: Example OCI CLI call
         env:
-          OCI_CONFIG_JSON: ${{ secrets.OCI_CONFIG_JSON }}
+          OCI_OIDC_CONFIG: ${{ secrets.OCI_OIDC_CONFIG }}
           OCI_UPST: ${{ steps.oci_auth.outputs.upst }}
         run: |
-          REGION=$(echo "$OCI_CONFIG_JSON"        | jq -r '.oci_region')
-          COMPARTMENT=$(echo "$OCI_CONFIG_JSON"   | jq -r '.oci_compartment_id')
+          REGION=$(echo "$OCI_OIDC_CONFIG"        | jq -r '.oci_region')
+          COMPARTMENT=$(echo "$OCI_OIDC_CONFIG"   | jq -r '.oci_compartment_id')
           echo "Authenticated to region=${REGION}, compartment=${COMPARTMENT}"
           # oci compute instance list --compartment-id "${COMPARTMENT}" ...

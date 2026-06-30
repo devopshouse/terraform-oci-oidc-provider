@@ -73,12 +73,6 @@ variable "oci_service_user_name" {
   description = "Username for the OCI Identity Domain service user created for CI workload identity impersonation via OIDC."
 }
 
-variable "create_ocir_user" {
-  type        = bool
-  description = "Cria o usuário OCIR e o auth token para acesso ao container registry (OCIR). Defina como false em deployments que não usam o OCI Container Registry."
-  default     = true
-}
-
 variable "github_trust_name" {
   type        = string
   description = "Nome do Identity Propagation Trust para GitHub Actions."
@@ -95,6 +89,17 @@ variable "iam_policy_name" {
   type        = string
   description = "Nome da IAM policy que concede ao grupo CI acesso ao compartment."
   default     = "p-bootstrap-ci-oidc-manage-compartment"
+}
+
+variable "ocir_allowed_repositories" {
+  type        = list(string)
+  description = "OCIR repository names that the dedicated OCIR user may push/pull. Empty allows broad push/pull and repository creation in the compartment."
+  default     = []
+
+  validation {
+    condition     = alltrue([for repo in var.ocir_allowed_repositories : trimspace(repo) != ""])
+    error_message = "ocir_allowed_repositories must not contain empty repository names."
+  }
 }
 
 variable "oci_app_name" {

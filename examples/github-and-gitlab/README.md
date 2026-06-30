@@ -1,6 +1,6 @@
 # Example: GitHub Actions + GitLab CI (Both Platforms)
 
-Federates both GitHub Actions and GitLab CI simultaneously. Both platforms share the same IDCS service user, OCIR user, group, and Confidential Application — two separate Identity Propagation Trusts are created, one per platform.
+Federates both GitHub Actions and GitLab CI simultaneously. Both platforms share the same IDCS service user and Confidential Application, while OCIR uses a dedicated user, group, auth token, and policy. Two separate Identity Propagation Trusts are created, one per platform.
 
 GitHub secrets are written automatically. GitLab secrets must be stored manually from Terraform outputs.
 

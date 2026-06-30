@@ -18,6 +18,24 @@ locals {
 
   gitlab_audience = try(var.gitlab.audience, null)
 
+  ocir_group_name = "${var.git_actions_group_name}-ocir"
+
+  ocir_broad_policy_statements = [
+    "allow group ${var.oci_identity_domain_name}/${local.ocir_group_name} to manage repos in compartment id ${var.oci_compartment_id} where request.permission='REPOSITORY_READ'",
+    "allow group ${var.oci_identity_domain_name}/${local.ocir_group_name} to manage repos in compartment id ${var.oci_compartment_id} where request.permission='REPOSITORY_UPDATE'",
+    "allow group ${var.oci_identity_domain_name}/${local.ocir_group_name} to manage repos in compartment id ${var.oci_compartment_id} where request.permission='REPOSITORY_CREATE'",
+  ]
+
+  ocir_restricted_policy_statements = flatten([
+    for repo in var.ocir_allowed_repositories :
+    [
+      "allow group ${var.oci_identity_domain_name}/${local.ocir_group_name} to manage repos in compartment id ${var.oci_compartment_id} where all {target.repo.name='${repo}', request.permission='REPOSITORY_READ'}",
+      "allow group ${var.oci_identity_domain_name}/${local.ocir_group_name} to manage repos in compartment id ${var.oci_compartment_id} where all {target.repo.name='${repo}', request.permission='REPOSITORY_UPDATE'}",
+    ]
+  ])
+
+  ocir_policy_statements = length(var.ocir_allowed_repositories) == 0 ? local.ocir_broad_policy_statements : local.ocir_restricted_policy_statements
+
   ci_oidc_config_json = jsonencode({
     oci_idcs_endpoint  = local.idcs_endpoint
     oci_client_id      = oci_identity_domains_app.git_actions_app.name
@@ -25,8 +43,8 @@ locals {
     oci_region         = var.oci_region
     oci_tenancy_id     = oci_identity_domains_app.git_actions_app.tenancy_ocid
     oci_compartment_id = var.oci_compartment_id
-    ocir_username      = var.create_ocir_user ? "${data.oci_objectstorage_namespace.os[0].namespace}/${var.oci_service_user_name}-ocir" : ""
-    ocir_password      = var.create_ocir_user ? oci_identity_domains_auth_token.ocir_token[0].token : ""
-    ocir_url           = var.create_ocir_user ? "ocir.${var.oci_region}.oci.oraclecloud.com/${data.oci_objectstorage_namespace.os[0].namespace}" : ""
+    ocir_username      = "${data.oci_objectstorage_namespace.os.namespace}/${var.oci_service_user_name}-ocir"
+    ocir_password      = try(oci_identity_domains_auth_token.ocir_token.token, "")
+    ocir_url           = "ocir.${var.oci_region}.oci.oraclecloud.com/${data.oci_objectstorage_namespace.os.namespace}"
   })
 }

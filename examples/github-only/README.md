@@ -13,8 +13,9 @@ terraform apply
 
 ## What gets created
 
-- IDCS service user `svc-ci` + OCIR user `svc-ci-ocir` with auth token
-- IDCS group `grp-ci-actions` containing both users
+- IDCS service user `svc-ci` for UPST impersonation
+- Dedicated OCIR user `svc-ci-ocir`, auth token, group, and policy
+- IDCS group `grp-ci-actions` containing only the UPST service user
 - IDCS Confidential Application and Identity Propagation Trust for GitHub Actions
 - IAM policy granting the CI group access to the configured compartment
 - GitHub Actions secret `OCI_OIDC_CONFIG` in each listed repository (OCI + OCIR fields unified)

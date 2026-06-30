@@ -46,6 +46,10 @@ module "oci_oidc" {
   oci_service_user_name  = "svc-ci"
   git_actions_group_name = "grp-ci-actions"
 
+  # Empty default allows broad OCIR push/pull and repository creation.
+  # Restrict to existing repositories with:
+  # ocir_allowed_repositories = ["app-api"]
+
   # Both platforms share the same service user, group, and Confidential App.
   # Two separate Identity Propagation Trusts are created — one per platform.
   ci_platforms = ["github", "gitlab"]

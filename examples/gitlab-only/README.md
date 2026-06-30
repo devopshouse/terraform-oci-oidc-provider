@@ -25,8 +25,9 @@ terraform output gitlab_oidc_audience   # → use in id_tokens.OCI_TOKEN.aud
 
 ## What gets created
 
-- IDCS service user `svc-ci` + OCIR user `svc-ci-ocir` with auth token
-- IDCS group `grp-ci-actions` containing both users
+- IDCS service user `svc-ci` for UPST impersonation
+- Dedicated OCIR user `svc-ci-ocir`, auth token, group, and policy
+- IDCS group `grp-ci-actions` containing only the UPST service user
 - IDCS Confidential Application and Identity Propagation Trust for GitLab CI
 - IAM policy granting the CI group access to the configured compartment
 
