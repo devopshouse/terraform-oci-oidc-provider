@@ -26,10 +26,10 @@ resource "oci_identity_domains_user" "git_service_user" {
 }
 
 
-resource "oci_identity_domains_group" "git_actions_group" {
+resource "oci_identity_domains_group" "git_service_group" {
   idcs_endpoint = local.idcs_endpoint
   schemas       = ["urn:ietf:params:scim:schemas:core:2.0:Group"]
-  display_name  = var.git_actions_group_name
+  display_name  = var.oci_service_group_name
 
   members {
     type  = "User"
@@ -51,7 +51,7 @@ resource "oci_identity_domains_app" "git_actions_app" {
     value = "CustomWebAppTemplateId"
   }
 
-  active          = var.app_active
+  active          = var.oci_app_active
   client_type     = "confidential"
   is_oauth_client = true
   allowed_grants  = ["client_credentials"]
@@ -75,7 +75,7 @@ resource "oci_identity_domains_identity_propagation_trust" "github_actions_trust
   type          = "JWT"
   schemas       = ["urn:ietf:params:scim:schemas:oracle:idcs:IdentityPropagationTrust"]
 
-  active              = var.app_active
+  active              = var.oci_app_active
   allow_impersonation = true
   public_key_endpoint = "https://token.actions.githubusercontent.com/.well-known/jwks"
 
@@ -111,12 +111,12 @@ resource "oci_identity_domains_identity_propagation_trust" "github_actions_trust
 
 resource "oci_identity_policy" "git_actions_policy" {
   compartment_id = var.oci_tenancy_id
-  name           = var.iam_policy_name
-  description    = "Allows ${oci_identity_domains_group.git_actions_group.display_name} to manage all resources in compartment ${var.oci_compartment_id}."
+  name           = var.oci_policy_name
+  description    = "Allows ${oci_identity_domains_group.git_service_group.display_name} to manage all resources in compartment ${var.oci_compartment_id}."
 
   statements = [
-    "allow group ${var.oci_identity_domain_name}/${oci_identity_domains_group.git_actions_group.display_name} to manage all-resources in compartment id ${var.oci_compartment_id}",
-    "allow group ${var.oci_identity_domain_name}/${oci_identity_domains_group.git_actions_group.display_name} to manage dynamic-groups in tenancy"
+    "allow group ${var.oci_identity_domain_name}/${oci_identity_domains_group.git_service_group.display_name} to manage all-resources in compartment id ${var.oci_compartment_id}",
+    "allow group ${var.oci_identity_domain_name}/${oci_identity_domains_group.git_service_group.display_name} to manage dynamic-groups in tenancy"
   ]
 }
 
@@ -134,7 +134,7 @@ resource "oci_identity_domains_identity_propagation_trust" "gitlab_ci_trust" {
   type          = "JWT"
   schemas       = ["urn:ietf:params:scim:schemas:oracle:idcs:IdentityPropagationTrust"]
 
-  active              = var.app_active
+  active              = var.oci_app_active
   allow_impersonation = true
   public_key_endpoint = coalesce(var.gitlab.public_key_endpoint, "${var.gitlab.issuer}/oauth/discovery/keys")
 

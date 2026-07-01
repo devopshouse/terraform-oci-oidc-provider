@@ -44,7 +44,7 @@ module "oci_oidc" {
   oci_compartment_id     = var.oci_compartment_id
   oci_region             = var.oci_region
   oci_service_user_name  = "svc-ci"
-  git_actions_group_name = "grp-ci-actions"
+  oci_service_group_name = "grp-ci-actions"
 
   # Both platforms share the same service user, group, and Confidential App.
   # Two separate Identity Propagation Trusts are created — one per platform.

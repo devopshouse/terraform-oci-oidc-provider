@@ -1,4 +1,4 @@
-variable "app_active" {
+variable "oci_app_active" {
   type        = bool
   description = "Whether the Identity Domains application should remain active."
   default     = true
@@ -30,7 +30,7 @@ variable "github" {
   default     = {}
 }
 
-variable "git_actions_group_name" {
+variable "oci_service_group_name" {
   type        = string
   description = "IAM group name shared by all CI platforms federated via OIDC."
 }
@@ -76,25 +76,25 @@ variable "oci_service_user_name" {
 
 variable "github_trust_name" {
   type        = string
-  description = "Nome do Identity Propagation Trust para GitHub Actions."
+  description = "Name of the Identity Propagation Trust for GitHub Actions."
   default     = "GitHub-Actions-Trust"
 }
 
 variable "gitlab_trust_name" {
   type        = string
-  description = "Nome do Identity Propagation Trust para GitLab CI."
+  description = "Name of the Identity Propagation Trust for GitLab CI."
   default     = "GitLab-CI-Trust"
 }
 
-variable "iam_policy_name" {
+variable "oci_policy_name" {
   type        = string
-  description = "Nome da IAM policy que concede ao grupo CI acesso ao compartment."
+  description = "Name of the IAM policy granting the CI group access to the compartment."
   default     = "p-bootstrap-ci-oidc-manage-compartment"
 }
 
 
 variable "oci_app_name" {
   type        = string
-  description = "Nome da Confidential Application no IDCS."
+  description = "Name of the Confidential Application in IDCS."
   default     = "CI-OIDC-Confidential-App"
 }

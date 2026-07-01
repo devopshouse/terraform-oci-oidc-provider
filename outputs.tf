@@ -6,7 +6,7 @@ output "ci_oidc_config_json" {
 
 output "iam_group_ocid" {
   description = "OCID of the Identity Domains group shared by all CI platforms federated via OIDC."
-  value       = oci_identity_domains_group.git_actions_group.id
+  value       = oci_identity_domains_group.git_service_group.id
 }
 
 output "github_subject_claims" {
